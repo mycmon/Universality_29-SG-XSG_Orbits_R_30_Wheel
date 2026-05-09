@@ -24,7 +24,7 @@ from statistics import median
 from sympy import primerange
 
 # ── Configuration ─────────────────────────────────────────────────────────────
-N       = int(sys.argv[1]) if len(sys.argv) > 1 else 200_000
+N       = int(sys.argv[1]) if len(sys.argv) > 1 else 200_000_000
 TS      = time.strftime('%Y%m%d_%H%M%S')
 OUT_TXT = f"monfette_2026_{TS}.txt"
 OUT_MD  = f"monfette_2026_{TS}.md"
@@ -304,7 +304,8 @@ def main():
                      f"{r['total']:,} | {r['total']-len(r['echecs']):,} | {couv_s} | "
                      f"{r['p_med']} | {r['p1_pct']:.1f}% | {r['S']:.1f} | "
                      f"{r['rejetes']:,} |\n")
-
+        fh.write("|------------------------------------------------------------------|\n")
+        fh.write(content)
     print(f"\n  Fichiers sauvegardés / Files saved:")
     print(f"    {OUT_TXT}")
     print(f"    {OUT_MD}")
