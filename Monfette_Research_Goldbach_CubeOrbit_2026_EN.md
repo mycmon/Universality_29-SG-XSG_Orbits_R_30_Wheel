@@ -96,7 +96,7 @@ The unifying insight is that every prime p \> 5 lives on one of exactly 8 orbita
 
 The foundation of the entire framework is the multiplicative group of integers modulo 30, which has order phi(30) = 8. Every prime p \> 5 must satisfy gcd(p, 30) = 1, placing it in one of exactly 8 residue classes:
 
-$$*R30 = { 1, 7, 11, 13, 17, 19, 23, 29 } (mod 30)*$$
+*R30 = { 1, 7, 11, 13, 17, 19, 23, 29 } (mod 30)*
 
 We visualize these 8 residues as 8 orbital highways on a circle of 360 degrees, where each highway r corresponds to the angle theta_r = r \* (2\*pi / 30). Every prime is permanently assigned to one highway, and cannot migrate between highways.
 
