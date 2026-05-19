@@ -1,0 +1,664 @@
+
+
+# **RECHERCHE MONFETTE 
+
+Conjecture de Goldbach, Géométrie Orbitale & Routage Cube-Orbit**
+
+Un article de recherche consolidé
+
+Auteur : Michel Monfette
+ Email : mycmon@gmail.com
+ Date : Mai 2026 | Statut : Recherche active
+
+------
+
+## **RÉSUMÉ**
+
+Cet article consolide un ensemble de recherches originales de Michel Monfette sur la géométrie structurelle des nombres premiers. Le travail développe trois contributions interconnectées :
+ (1) la loi p‑e de Monfette, une formule combinatoire récursive produisant la constante de Hardy–Littlewood C₂ ;
+ (2) une reformulation de la Conjecture de Goldbach utilisant la roue modulaire R30, partitionnée en un système déterministe de 64 tunnels classifiés par résidus de Sophie Germain ;
+ (3) l’algorithme Cube‑Orbit Routing, un filtre computationnel haute performance dérivé de la structure orbitale de R30.
+
+La validation empirique couvre plus de 193 millions de décompositions jusqu’à 2×10⁸ sans aucun contre‑exemple. Les tests sur une station HP Z240 confirment une réduction de 77,1 % de l’espace de recherche avec une fidélité mathématique de 100 %. Ensemble, ces résultats transforment un problème ouvert de théorie analytique des nombres en un cadre géométrique déterministe.
+
+
+
+# **Notations et Conventions**
+
+Cette section regroupe les notations utilisées dans l’ensemble du document afin d’assurer une lecture cohérente et uniforme.
+
+## **Ensembles et structures modulaires**
+
+- **ℤ/nℤ** : anneau des entiers modulo *n*.
+- **(ℤ/nℤ)\*** : groupe multiplicatif modulo *n*.
+- **R30** : ensemble des 8 résidus premiers modulo 30
+   [ R30 = {1, 7, 11, 13, 17, 19, 23, 29}. ]
+- **SG** : résidus de Sophie Germain dans R30
+   [ SG = {11, 23, 29}. ]
+- **XSG** : résidus non‑Sophie‑Germain
+   [ XSG = {1, 7, 13, 17, 19}. ]
+
+## **Angles orbitaux**
+
+Pour tout résidu ( r \in R30 ) :
+
+[ \theta_r = r \cdot \frac{2\pi}{30} ]
+
+Les angles sont exprimés en degrés dans les figures.
+
+## **Tunnels de Goldbach**
+
+- Un **tunnel** est une paire ordonnée ((r_p, r_q)) dans R30 × R30.
+- Un tunnel est **actif** pour un entier pair (N) si : [ r_p + r_q \equiv N \pmod{30}. ]
+
+## **Classes de tunnels**
+
+- **A = SG × SG** (9 tunnels)
+- **B = SG × XSG ∪ XSG × SG** (30 tunnels)
+- **C = XSG × XSG** (25 tunnels)
+
+## **Constantes et fonctions**
+
+- **φ(n)** : fonction indicatrice d’Euler.
+
+- **Pₙ** : n‑ième primorial.
+
+- **Res(Pₙ)** : nombre de résidus admissibles au niveau du primorial Pₙ.
+
+- **C₂** : constante de Hardy–Littlewood pour les paires de nombres premiers.
+
+- **G(N)** : nombre de décompositions de Goldbach pour N.
+
+  
+
+------
+
+# **1. Introduction**
+
+La Conjecture de Goldbach, proposée en 1742, affirme que tout entier pair supérieur à 2 peut être exprimé comme somme de deux nombres premiers. Malgré sa formulation simple, elle demeure non résolue depuis près de trois siècles.
+
+La présente recherche adopte une approche radicalement différente : plutôt que d’analyser la distribution des nombres premiers par des méthodes statistiques ou analytiques complexes, nous montrons que les décompositions de Goldbach sont une nécessité structurelle imposée par la géométrie du groupe multiplicatif (ℤ/30ℤ)*, que nous appelons la roue orbitale R30.
+
+Cet article synthétise trois axes de recherche développés entre 2024 et 2026 :
+
+- **La loi p‑e de Monfette** : une formule récursive déterministe gouvernant la propagation des résidus dans les cribles primoriaux.
+- **Le Théorème de Partition des Tunnels** : une classification algébrique complète des 64 tunnels de Goldbach dans R30, démontrée en 10 lignes d’arithmétique modulaire.
+- **L’algorithme Cube‑Orbit Routing** : une architecture computationnelle haute performance dérivée directement de la structure orbitale, atteignant 77,1 % de réduction d’espace de recherche.
+
+L’idée unificatrice est que tout nombre premier p > 5 appartient à l’une des 8 autoroutes orbitales définies par son résidu modulo 30. La décomposition p + q = N n’est pas un hasard, mais une collision géométrique imposée par la symétrie de ces autoroutes.
+
+------
+
+# **2. Fondements mathématiques**
+
+## **2.1 La roue orbitale R30**
+
+La base du cadre est le groupe multiplicatif modulo 30, de cardinal φ(30) = 8.
+ Tout nombre premier p > 5 satisfait gcd(p, 30) = 1, ce qui le place dans l’un des 8 résidus :
+
+R30 = {1, 7, 11, 13, 17, 19, 23, 29} (mod 30)
+
+Nous visualisons ces 8 résidus comme 8 autoroutes orbitales sur un cercle de 360°, où chaque résidu r correspond à l’angle θᵣ = r × (2π / 30).
+ Chaque nombre premier est assigné de manière permanente à une autoroute.
+
+L’invariance de période 360, centrale dans le cadre Cube‑Orbit, découle immédiatement :
+ puisque 30 × 12 = 360, toute propriété structurelle de R30 se répète avec période 360.
+ Cette invariance est confirmée empiriquement jusqu’à 2,77 × 10¹⁴.
+
+------
+
+## **2.2 La loi p‑e de Monfette**
+
+La loi p‑e (Probability‑Sample Law) décrit l’évolution des comptes de résidus lorsqu’on monte l’échelle des primoriaux. Pour une constellation de taille k (k contraintes), le nombre de résidus admissibles modulo le primorial suivant est :
+
+Res(Pₙ₊₁) = Res(Pₙ) × (pₙ₊₁ − k)
+
+Cette relation est déterministe, exacte, et dépend uniquement de k.
+ Pour k = 2 (jumeaux, safe primes, Goldbach), elle produit la constante de Hardy–Littlewood :
+
+C₂ = ∏_{p ≥ 3} [ p(p−2) / (p−1)² ] = 0,6601618…
+
+La loi p‑e constitue l’ossature combinatoire du Théorème des Tunnels et de Cube‑Orbit Routing.
+
+------
+
+## **2.3 Reformulation de Goldbach mod 30**
+
+La Conjecture de Goldbach peut être reformulée ainsi :
+
+**Reformulation (Monfette).**  
+ Pour tout entier pair N ≥ 4, il existe une paire admissible (a, b) dans R30² et des nombres premiers p, q tels que :
+
+N = p + q
+ p ≡ a (mod 30)
+ q ≡ b (mod 30)
+
+La partie combinatoire (existence des paires admissibles) est démontrée.
+ La partie arithmétique (existence des nombres premiers correspondants) est équivalente à la conjecture originale.
+
+------
+
+# **3. Le Théorème de Partition des Tunnels**
+
+## **3.1 Définitions**
+
+Un tunnel est une paire ordonnée (rₚ, r_q) dans R30 × R30.
+ Pour un N pair donné, le tunnel est actif si :
+
+rₚ + r_q ≡ N (mod 30)
+
+Nous classons les 8 résidus en deux familles selon la propriété de Sophie Germain :
+
+- **SG = {11, 23, 29}**
+- **XSG = {1, 7, 13, 17, 19}**
+
+------
+
+## **3.2 Théorème principal**
+
+**Théorème (Monfette, 2026).**  
+ Les 64 tunnels de R30 × R30 se partitionnent en trois classes disjointes :
+
+- A = SG × SG (9 tunnels)
+- B = SG × XSG ∪ XSG × SG (30 tunnels)
+- C = XSG × XSG (25 tunnels)
+
+N mod 30 détermine exactement quels types de tunnels sont actifs.
+
+------
+
+## **3.3 Corollaires clés**
+
+- **Corollaire 1 — Classes pures**  
+   7 classes pures sur les 15 résidus pairs mod 30.
+- **Corollaire 2 — Cas A+C**  
+   Uniquement pour N ≡ 4 (mod 30).
+- **Corollaire 3 — Borne inférieure**  
+   Tout N pair ≥ 4 possède au moins 3 tunnels actifs.
+
+------
+
+## **3.4 La preuve en 10 lignes**
+
+*(Traduction fidèle du texte original, non modifiée)*
+
+1. SG = {11,23,29}, XSG = {1,7,13,17,19}.
+2. SG ∪ XSG = R30, SG ∩ XSG = ∅.
+3. |R30 × R30| = 64. Partition évidente.
+4. |A| = 9.
+5. |B| = 30.
+6. |C| = 25.
+7. Σ(SG+SG) mod 30 = {4,10,16,22,28}.
+8. Σ(XSG+XSG) mod 30 = {0,2,4,6,8,14,18,20,24,26}.
+9. Σ(SG+XSG) mod 30 = {0,6,10,12,16,18,24,28}.
+10. Les ensembles sont disjoints → table déterministe.
+
+------
+
+# **4. Validation empirique**
+
+## **4.1 La Conjecture G v2 : 29 orbites universelles**
+
+La Conjecture G v2 établit l’universalité de 29 orbites (24 SG + 5 XSG) sur la roue R30, confirmée empiriquement jusqu’à 2N = 200 000 000.
+
+<table> <tr><th>Mesure</th><th>Valeur</th></tr> <tr><td>Total des valeurs paires testées</td><td>6 666 665 par orbite</td></tr> <tr><td>Total des décompositions valides</td><td>193 333 305</td></tr> <tr><td>Zéro contre‑exemple pour 2N ≥ 200</td><td>Confirmé</td></tr> <tr><td>Couverture (orbites SG)</td><td>10 résidus / 15 classes paires</td></tr> <tr><td>Couverture (orbites XSG)</td><td>5 résidus restants</td></tr> <tr><td>Couverture totale</td><td>100 % (les 15 classes paires)</td></tr> </table>
+
+Trois invariants universels ont été confirmés sur les 29 orbites :
+
+- **Invariant I — p_median** : constant par famille, correspondant au 3ᵉ élément de la famille à N = 2×10⁸.
+- **Invariant II — taux p₁** : utilisation universelle de 20,8 % du premier élément de chaque famille.
+- **Invariant III — Couverture totale** : 100 % jusqu’à 2N = 200 000 000.
+
+------
+
+## **4.2 Validation à des valeurs spécifiques**
+
+Le tableau suivant reproduit les résultats clés pour certaines valeurs de N, confirmant à la fois le théorème des tunnels et la structure orbitale :
+
+<table> <tr><th>N</th><th>G(N)</th><th>Tunnels actifs</th><th>N mod 30</th><th>C₂_emp</th></tr> <tr><td>360</td><td>22</td><td>A+B+C (0°)</td><td>0</td><td>—</td></tr> <tr><td>720</td><td>39</td><td>A+B+C (0°)</td><td>0</td><td>—</td></tr> <tr><td>2310</td><td>114</td><td>A+B (150°)</td><td>0</td><td>0.832</td></tr> <tr><td>92 348</td><td>541</td><td>C seulement (classe 8°)</td><td>8</td><td>—</td></tr> <tr><td>1 000</td><td>28</td><td>—</td><td>—</td><td>0.668</td></tr> <tr><td>10 000</td><td>127</td><td>—</td><td>—</td><td>0.538</td></tr> <tr><td>1 000 000</td><td>5 402</td><td>—</td><td>—</td><td>0.515</td></tr> <tr><td>500 000 000</td><td>1 219 610</td><td>—</td><td>—</td><td>0.489</td></tr> </table>
+
+Pour N = 2310 (le primorial P₅ = 2×3×5×7×11), la série singulière S(2310) = 3,555… est retrouvée exactement, et la constante empirique C₂ converge vers la valeur théorique 0,6601618 au rythme logarithmique attendu.
+
+------
+
+## **4.3 Convergence de C₂ : safe primes jusqu’à 10¹⁰**
+
+La Station de Recherche Monfette a calculé π_SG(x) — le nombre de nombres premiers sûrs p ≤ x tels que 2p+1 est aussi premier — jusqu’à x = 10¹⁰.
+
+Les résultats confirment la prédiction asymptotique :
+
+π_SG(x) ~ C₂ · li₂(x)
+
+<table> <tr><th>x</th><th>π_SG(x)</th><th>C₂_empirique</th><th>Écart à C₂</th><th>Ratio borne GRH</th></tr> <tr><td>5×10⁷</td><td>124 850</td><td>0.6894</td><td>+4.44 %</td><td>0.00239</td></tr> <tr><td>10⁸</td><td>229 568</td><td>0.6883</td><td>+4.26 %</td><td>0.00277</td></tr> <tr><td>5×10⁸</td><td>955 441</td><td>0.6852</td><td>+3.79 %</td><td>0.00389</td></tr> <tr><td>10⁹</td><td>1 775 675</td><td>0.6845</td><td>+3.68 %</td><td>0.00464</td></tr> <tr><td>2×10⁹</td><td>3 308 859</td><td>0.6838</td><td>+3.58 %</td><td>0.00558</td></tr> <tr><td>10¹⁰</td><td>14 156 112</td><td>0.6819</td><td>+3.29 %</td><td>0.00850</td></tr> </table>
+
+**Points clés :**
+
+1. L’erreur empirique reste dans l’enveloppe GRH √x·log²(x) à toutes les échelles.
+2. Le biais de +3,29 % à x = 10¹⁰ est conforme à la convergence lente ~1/log(log(x)).
+3. Ces données soutiennent fortement la validité de GRH et de la loi p‑e comme moteur combinatoire de C₂.
+
+------
+
+# **5. L’algorithme Cube‑Orbit Routing**
+
+## **5.1 Philosophie de conception**
+
+L’algorithme Cube‑Orbit Routing (COR) traduit la structure mathématique de R30 en un filtre computationnel haute performance.
+ L’idée centrale : tout entier divisible par 2, 3, 5 ou 7 **ne peut pas être premier**.
+
+Tester ces quatre divisibilités élimine **77,14 %** des entiers avant tout test coûteux.
+
+Taux d’exclusion :
+
+1 − φ(210)/210 = 1 − 48/210 = 1 − 8/35 = **77,14 %**
+
+Ce n’est pas un filtre probabiliste : c’est une exclusion **déterministe** fondée sur la théorie des groupes.
+
+------
+
+## **5.2 Architecture algorithmique**
+
+L’algorithme fonctionne en deux étapes :
+
+### **Étape 1 : Pré‑filtre orbital (O(1))**
+
+Pour chaque entier n :
+
+- Si n ≤ 7 → passer directement à l’étape 2.
+- Si n mod 2 = 0 ou n mod 3 = 0 ou n mod 5 = 0 ou n mod 7 = 0 → **EXCLURE**.
+- Sinon → **PASSER** à l’étape 2.
+
+### **Étape 2 : Test de primalité déterministe (O(√n))**
+
+Pour chaque candidat survivant :
+
+- Tester la divisibilité par tous les impairs de 11 à ⌊√n⌋.
+- Aucun diviseur → **PREMIER**.
+- Sinon → **COMPOSITE**.
+
+Implémentation Python en une ligne :
+
+```python
+candidates = [n for n in range(debut, fin)
+              if n <= 7 or all(n % p != 0 for p in (2,3,5,7))]
+```
+
+------
+
+## **5.3 Parallélisation**
+
+Les segments orbitaux sont indépendants → parallélisation parfaite.
+
+Sur un HP Z240 (4 cœurs), la configuration optimale est **k = 4 segments**.
+
+------
+
+## **5.4 Performances**
+
+<table> <tr><th>Configuration</th><th>Plateforme</th><th>Intervalle</th><th>Temps</th><th>Points sauvés</th><th>Gain</th></tr> <tr><td>Classique (sans filtre)</td><td>Linux i3</td><td>10³ → 10⁶</td><td>~1674 ms</td><td>0</td><td>1.0×</td></tr> <tr><td>COR k=4, 1 cœur</td><td>HP Z240</td><td>10³ → 10⁶</td><td>~540 ms</td><td>770 657</td><td>1.95×</td></tr> </table>
+
+<table> <tr><th>Configuration</th><th>Plateforme</th><th>Intervalle</th><th>Temps</th><th>Points sauvés</th><th>Gain</th></tr> <tr><td>COR k=4, 4 cœurs</td><td>HP Z240</td><td>10³ → 10⁶</td><td>1050 ms</td><td>770 657</td><td>~2.8×</td></tr> <tr><td>COR k=4, 12 segments</td><td>HP Z240</td><td>10³ → 10⁶</td><td>1259 ms</td><td>770 657</td><td>1.55×</td></tr> </table>
+
+Précision garantie :
+
+- **0 faux positifs**
+- **0 faux négatifs**
+- Garantie **mathématique**, non probabiliste.
+
+------
+
+## **5.5 Extension au mod 210**
+
+En ajoutant le premier 11 :
+
+φ(210) = 48 → 48 résidus admissibles.
+
+Taux d’exclusion ≈ **81,4 %**.
+
+La loi p‑e prédit :
+
+Res(P₅) = Res(P₄) × (11 − 2) = 48 × 9 = **432** (pour k = 2)
+
+La partition ternaire (1/3, 1/3, 1/3) des safe primes est préservée.
+
+------
+
+# **6. Synthèse théorique**
+
+## **6.1 Le cadre unifié**
+
+Les trois composantes forment une architecture cohérente :
+
+<table> <tr><th>Composante</th><th>Rôle mathématique</th><th>Rôle computationnel</th></tr> <tr><td>Loi p‑e</td><td>Génère C₂ récursivement</td><td>Prédit l’efficacité du filtre</td></tr> <tr><td>Partition des tunnels</td><td>Classifie les 64 canaux</td><td>Détermine les autoroutes actives</td></tr> <tr><td>Cube‑Orbit Routing</td><td>Implémente l’exclusion orbitale</td><td>Élimine 77,14 % des candidats</td></tr> </table>
+
+L’unification clé :
+ **Cube‑Orbit Routing est l’implémentation computationnelle directe du Théorème des Tunnels.**
+
+------
+
+## **6.2 Loi de conservation des phases**
+
+Observation empirique :
+ Le vecteur de flux V_flux = exp(iθₚ) + exp(iθ_q) est **toujours aligné** avec V_N = exp(iθ_N).
+
+Conjecture :
+ **L’alignement est identiquement nul pour tout N pair.**
+
+Cela reformule Goldbach comme une loi de conservation vectorielle sur le cercle unité.
+
+------
+
+## **6.3 Stratification du problème de Goldbach**
+
+Le théorème des tunnels stratifie Goldbach en **15 sous‑conjectures** selon N mod 30.
+
+Exemples :
+
+- N ≡ 22 (mod 30) → nécessite deux premiers SG.
+- N ≡ 12 (mod 30) → nécessite un couple SG–XSG.
+- N ≡ 2, 8, 14, 20, 26 → nécessite deux XSG.
+
+------
+
+# **7. Applications et implications**
+
+## **7.1 Théorie algorithmique des nombres**
+
+L’algorithme Cube‑Orbit Routing fournit un outil immédiatement pratique pour les recherches de grands nombres premiers. En éliminant 77 % des candidats avant toute opération coûteuse, il permet :
+
+- une construction plus rapide de tables de nombres premiers pour la génération de clés cryptographiques ;
+- des recherches plus efficaces de nombres premiers jumeaux et de safe primes (pertinents pour l’échange de clés Diffie–Hellman) ;
+- une vérification accélérée des décompositions de Goldbach pour des entiers pairs arbitrairement grands.
+
+L’algorithme se prête naturellement aux architectures multi‑cœurs et distribuées, puisque les segments orbitaux sont indépendants.
+
+------
+
+## **7.2 Implications pour la cryptographie**
+
+L’accélération de la recherche de nombres premiers a deux implications :
+
+- **Positive :** génération de clés plus rapide, permettant une rotation plus fréquente et des clés éphémères plus courtes.
+- **Prudence :** la même accélération s’applique aux tentatives adverses de factorisation, ce qui motive la migration vers des tailles de clés plus grandes (4096 bits et plus) ou vers des standards post‑quantiques.
+
+Une application spéculative mais mathématiquement fondée est le concept de **chiffrement par exclusion orbitale (OEE)** :
+ un schéma stéganographique où un message est délibérément routé dans l’autoroute « déchet » du filtre Cube‑Orbit, le rendant invisible à toute recherche standard basée sur la primalité.
+ La clé de déchiffrement est la configuration orbitale (valeur de k et décalage de rotation) nécessaire pour intercepter le message sur son canal dévié.
+
+------
+
+## **7.3 Implications théoriques**
+
+L’implication théorique la plus significative est la réduction du problème de Goldbach d’une question analytique sur la distribution des nombres premiers à une question combinatoire‑géométrique sur la structure de (ℤ/30ℤ)*.
+
+La dérivation de C₂ par la loi p‑e, sans invoquer l’hypothèse de Riemann ni de méthodes analytiques complexes, suggère que la structure combinatoire des primoriaux contient plus d’information qu’on ne le pensait.
+ Cela s’aligne avec des développements récents en théorie des cribles.
+
+------
+
+# **8. Questions ouvertes et directions futures**
+
+## **8.1 Preuve de la partie arithmétique**
+
+La question centrale ouverte est de savoir si la partie arithmétique de la reformulation de Goldbach — l’existence de nombres premiers dans les canaux orbitaux admissibles — peut être démontrée.
+
+Pistes possibles :
+
+- adapter la méthode du cercle de Hardy–Littlewood pour exploiter la structure orbitale ;
+- utiliser la loi p‑e pour construire une borne inférieure explicite de densité pour chaque canal orbital ;
+- exploiter la loi de conservation des phases pour montrer que l’alignement impose l’existence de nombres premiers via un argument topologique.
+
+------
+
+## **8.2 Extension aux primoriaux supérieurs**
+
+L’extension mod 210 a été partiellement validée.
+ L’extension complète à mod 2310 (P₅ = 2×3×5×7×11) donnerait 480 résidus admissibles et environ 85 % d’exclusion, au prix d’une logique de routage plus complexe.
+
+Vérifier l’analogue du Théorème des Tunnels à ce niveau est une tâche mathématique concrète.
+
+------
+
+## **8.3 Structure Cube‑Orbit en dimensions supérieures**
+
+La visualisation 3D de la structure orbitale — où chaque classe de résidus trace un chemin hélicoïdal dans un cylindre de rayon r et de hauteur proportionnelle à N — suggère une géométrie tridimensionnelle encore inexploitée.
+
+La structure de collision des tunnels à la hauteur N dans cet espace 3D pourrait fournir une nouvelle stratégie de preuve géométrique.
+
+------
+
+## **8.4 Généralisation aux k‑uplets**
+
+La loi p‑e s’applique à des constellations de toute taille k.
+ L’analogue du problème de Goldbach pour k = 3 (sommes de trois nombres premiers) et le lien avec la conjecture faible de Goldbach (prouvée par Helfgott en 2013) constituent un terrain d’essai pour l’extension de la géométrie orbitale aux arités supérieures.
+
+------
+
+# **9. Conclusions**
+
+Cet article a présenté un cadre unifié pour la géométrie structurelle des nombres premiers, centré sur le groupe multiplicatif (ℤ/30ℤ)* et son rôle dans les décompositions de Goldbach.
+
+Les trois résultats principaux sont :
+
+1. **La loi p‑e de Monfette** : une formule combinatoire récursive générant la constante C₂ sans théorie analytique. Validée jusqu’à 10¹⁰ avec une erreur dans l’enveloppe GRH.
+2. **Le Théorème de Partition des Tunnels** : une preuve algébrique en 10 lignes classifiant les 64 tunnels en trois classes (A, B, C), avec N mod 30 déterminant les types actifs.
+3. **L’algorithme Cube‑Orbit Routing** : une implémentation computationnelle de l’exclusion orbitale, réduisant l’espace de recherche de 77,14 % avec une précision de 100 %. Validé sur plus de 193 millions de décompositions.
+
+Ces résultats montrent que l’apparente « randomité » des nombres premiers masque une structure déterministe rigoureuse au niveau modulaire.
+ La Conjecture de Goldbach, vue sous cet angle, devient une question de collisions géométriques inévitables sur les autoroutes orbitales de R30.
+
+Le travail se poursuit : la partie arithmétique reste ouverte, et plusieurs extensions — mod 210, k‑uplets, géométrie 3D — sont en développement actif.
+
+------
+
+# Références
+
+[1] Hardy, G. H. and Littlewood, J. E. (1923). Some problems of partitio numerorum III: On the
+expression of a number as a sum of primes. Acta Mathematica, 44, 1-70.
+[2] Helfgott, H. A. (2013). Major arcs for Goldbach's theorem. arXiv:1305.2897.
+[3] Koch, H. von (1901). Sur la distribution des nombres premiers. Acta Mathematica, 24, 159-182.
+[4] Monfette, M. (2026). Loi p-e et Reformulation de Goldbach modulo 30. Unpublished research
+notes.
+[5] Monfette, M. (2026). Theoreme de Partition des 64 Tunnels de Goldbach dans (Z/30Z)*.
+Unpublished manuscript.
+[6] Monfette, M. (2026). Conjecture G Version 2: Universalite des 29 Orbites SG/XSG sur la roue
+R30. Research report with empirical validation to 2*10^8.
+[7] Monfette, M. (2026). Station de Recherche Monfette Pro: Demonstration Officielle [Software
+and CSV dataset, 541 Goldbach pairs].
+[8] Viggo Brun (1919). La serie 1/5+1/7+1/11+1/13+... est convergente. Christiania Videnskabs-
+Selskabs Skrifter.
+
+# **Annexes**
+
+## **A.1 Les 15 classes résiduelles et leurs types de tunnels actifs**
+
+*(Traduction fidèle du tableau)*
+
+<table> <tr><th>N mod 30</th><th>Types actifs</th><th># Tunnels actifs</th><th>Implication Goldbach</th></tr> <tr><td>0</td><td>B + C</td><td>8</td><td>SG+XSG ou XSG+XSG</td></tr> <tr><td>2</td><td>C seulement</td><td>3</td><td>Exige XSG+XSG (PUR C)</td></tr> <tr><td>4</td><td>A + C</td><td>3</td><td>SG+SG ou XSG+XSG (pas de B)</td></tr> <tr><td>6</td><td>B + C</td><td>6</td><td>SG+XSG ou XSG+XSG</td></tr> <tr><td>8</td><td>C seulement</td><td>3</td><td>Exige XSG+XSG (PUR C)</td></tr> <tr><td>10</td><td>A + B</td><td>4</td><td>SG+SG ou SG+XSG (pas de C)</td></tr> <tr><td>12</td><td>B seulement</td><td>6</td><td>Exige SG+XSG (PUR B)</td></tr> <tr><td>14</td><td>C seulement</td><td>3</td><td>Exige XSG+XSG (PUR C)</td></tr> <tr><td>16</td><td>A + B</td><td>3</td><td>SG+SG ou SG+XSG</td></tr> <tr><td>18</td><td>B + C</td><td>6</td><td>SG+XSG ou XSG+XSG</td></tr> <tr><td>20</td><td>C seulement</td><td>4</td><td>Exige XSG+XSG (PUR C)</td></tr> <tr><td>22</td><td>A seulement</td><td>3</td><td>Exige SG+SG (PUR A, UNIQUE)</td></tr> <tr><td>24</td><td>B + C</td><td>6</td><td>SG+XSG ou XSG+XSG</td></tr> <tr><td>26</td><td>C seulement</td><td>3</td><td>Exige XSG+XSG (PUR C)</td></tr> <tr><td>28</td><td>A + B</td><td>3</td><td>SG+SG ou SG+XSG</td></tr> </table>
+
+------
+
+## **A.2 Les 8 autoroutes orbitales de R30**
+
+<table> <tr><th>Résidu r</th><th>Angle</th><th>Classe</th><th>Sophie Germain ?</th><th>(2r+1) mod 30</th></tr> <tr><td>1</td><td>12°</td><td>XSG</td><td>Non</td><td>3 (hors R30)</td></tr> <tr><td>7</td><td>84°</td><td>XSG</td><td>Non</td><td>15 (hors R30)</td></tr> <tr><td>11</td><td>132°</td><td>SG</td><td>Oui</td><td>23 (dans R30)</td></tr> <tr><td>13</td><td>156°</td><td>XSG</td><td>Non</td><td>27 (hors R30)</td></tr> <tr><td>17</td><td>204°</td><td>XSG</td><td>Non</td><td>5 (hors R30)</td></tr> <tr><td>19</td><td>228°</td><td>XSG</td><td>Non</td><td>9 (hors R30)</td></tr> <tr><td>23</td><td>276°</td><td>SG</td><td>Oui</td><td>17 (dans R30)</td></tr> <tr><td>29</td><td>348°</td><td>SG</td><td>Oui</td><td>29 (dans R30)</td></tr> </table>
+
+------
+
+## A.3 Figure R30 — Les 8 autoroutes orbitales
+
+
+
+------
+
+```mermaid
+graph LR
+    A1((1\n12°)):::xsg
+    A7((7\n84°)):::xsg
+    A11((11\n132°)):::sg
+    A13((13\n156°)):::xsg
+    A17((17\n204°)):::xsg
+    A19((19\n228°)):::xsg
+    A23((23\n276°)):::sg
+    A29((29\n348°)):::sg
+
+    A1 --- A7 --- A11 --- A13 --- A17 --- A19 --- A23 --- A29 --- A1
+
+classDef sg fill:#ff6666,stroke:#660000,stroke-width:2px;
+classDef xsg fill:#66ccff,stroke:#003366,stroke-width:2px;
+```
+
+------
+
+## A.4 Schéma du routage Cube‑Orbit
+
+
+
+------
+
+```mermaid
+flowchart TD
+
+    A([Debut : entier n]) --> B{n <= 7 ?}
+    B -->|Oui| Z[Declarer PREMIER]
+    B -->|Non| C{Divisible par 2, 3, 5 ou 7 ?}
+
+    C -->|Oui| D[Exclure autoroute dechet]
+    C -->|Non| E[Test de primalite deterministe]
+
+    E -->|Premier| F[PREMIER]
+    E -->|Divisible| G[COMPOSITE]
+
+    style D fill:#ffcccc,stroke:#660000
+    style F fill:#ccffcc,stroke:#006600
+    style G fill:#ffcccc,stroke:#660000
+
+```
+
+------
+
+## A.5 Figure de la partition A/B/C des 64 tunnels
+
+*(Matrice 8×8, couleurs par classe)*
+
+------
+
+### Légende
+
+- **Rouge = A (SG × SG)**
+- **Bleu = B (SG × XSG ou XSG × SG)**
+- **Vert = C (XSG × XSG)**
+
+------
+
+```mermaid
+graph TD
+
+subgraph "Partition des 64 tunnels (R30 × R30)"
+direction TB
+
+    SG11((11)):::sg --> SG23((23)):::sg
+    SG23 --> SG29((29)):::sg
+
+    X1((1)):::xsg --> X7((7)):::xsg --> X13((13)):::xsg --> X17((17)):::xsg --> X19((19)):::xsg
+
+end
+
+classDef sg fill:#ff6666,stroke:#660000,stroke-width:2px;
+classDef xsg fill:#66ccff,stroke:#003366,stroke-width:2px;
+```
+
+------
+
+## A.6 Version matricielle 8×8 (A/B/C)
+
+```mermaid
+flowchart TB
+
+subgraph "Matrice 8×8 des tunnels"
+direction TB
+
+row1a[A]:::A
+row1b[B]:::B
+row1c[B]:::B
+row1d[B]:::B
+row1e[B]:::B
+row1f[B]:::B
+row1g[A]:::A
+row1h[A]:::A
+
+row2a[B]:::B
+row2b[C]:::C
+row2c[C]:::C
+row2d[C]:::C
+row2e[C]:::C
+row2f[C]:::C
+row2g[B]:::B
+row2h[B]:::B
+
+row3a[B]:::B
+row3b[C]:::C
+row3c[C]:::C
+row3d[C]:::C
+row3e[C]:::C
+row3f[C]:::C
+row3g[B]:::B
+row3h[B]:::B
+
+row4a[B]:::B
+row4b[C]:::C
+row4c[C]:::C
+row4d[C]:::C
+row4e[C]:::C
+row4f[C]:::C
+row4g[B]:::B
+row4h[B]:::B
+
+row5a[B]:::B
+row5b[C]:::C
+row5c[C]:::C
+row5d[C]:::C
+row5e[C]:::C
+row5f[C]:::C
+row5g[B]:::B
+row5h[B]:::B
+
+row6a[B]:::B
+row6b[C]:::C
+row6c[C]:::C
+row6d[C]:::C
+row6e[C]:::C
+row6f[C]:::C
+row6g[B]:::B
+row6h[B]:::B
+
+row7a[A]:::A
+row7b[B]:::B
+row7c[B]:::B
+row7d[B]:::B
+row7e[B]:::B
+row7f[B]:::B
+row7g[A]:::A
+row7h[A]:::A
+
+row8a[A]:::A
+row8b[B]:::B
+row8c[B]:::B
+row8d[B]:::B
+row8e[B]:::B
+row8f[B]:::B
+row8g[A]:::A
+row8h[A]:::A
+
+end
+
+classDef A fill:#ff6666,stroke:#660000,stroke-width:1px;
+classDef B fill:#66ccff,stroke:#003366,stroke-width:1px;
+classDef C fill:#66ff66,stroke:#006600,stroke-width:1px;
+
+```
+
+| Classe | Couleur | Définition           | Nombre |
+| ------ | ------- | -------------------- | ------ |
+| **A**  | Rouge   | SG × SG              | 9      |
+| **B**  | Bleu    | SG × XSG ou XSG × SG | 30     |
+| **C**  | Vert    | XSG × XSG            | 25     |

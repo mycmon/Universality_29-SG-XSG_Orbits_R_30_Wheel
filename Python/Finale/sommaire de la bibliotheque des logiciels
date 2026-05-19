@@ -1,0 +1,98 @@
+Voici un guide récapitulatif de la bibliothèque de recherche. Ces outils ont été conçus pour évoluer de la simple visualisation vers une plateforme de démonstration scientifique complète du **Système Monfette**.
+
+## 1. Visualiseurs de Base (Structure et Rotation)
+
+- **Programmes :** `Visualiseur Monfette - Cycle 360 & Loi p-k.py`, `Visualiseur Monfette 3D - Rotation & Flux.py`.
+- **Utilisation :** Observer la spirale des nombres premiers sur les 8 autoroutes $\mathcal{R}_{30}$ et l'effet du cycle 360.
+- **Résultat attendu :** Une spirale hélicoïdale montrant que les nombres premiers ne sortent jamais des couloirs définis.
+- **Export :** Aucun (Visualisation pure).
+
+## 2. Analyseurs de Goldbach (Validation Empirique)
+
+- **Programmes :** `Visualiseur Monfette 3D - Calcul Temps Réel.py`, `Système Monfette - Analyseur Goldbach & Cycle 360.py`.
+- **Utilisation :** Entrer un nombre $N$ et voir apparaître les "tunnels" (lignes oranges) qui relient les paires $p+q$.
+- **Résultat attendu :** La preuve visuelle que chaque $N$ pair possède au moins un tunnel de connexion entre deux autoroutes.
+- **Export :** Captures d'écran simples.
+
+## 3. Outils de Diagnostic Avancé (Stabilité et Goulots)
+
+- **Programmes :** `Station Monfette Pro - Analyseur de Stabilité Orbitale.py`, `Station Monfette Pro - Focus Tunnel & Stabilité.py`.
+- **Utilisation :** Traquer les "goulots d'étranglement" (points où la densité de solutions baisse).
+- **Résultat attendu :** La **Ligne Jaune de Stabilité** prouvant que même dans les pires cas, la résonance ne tombe jamais à zéro.
+- **Export :** Rapports Markdown détaillés et graphiques de densité.
+
+## 4. Analyseurs de Phase et Matrice (Le Cœur de la Preuve)
+
+- **Programmes :** `Station Monfette Pro - Analyseur de Flux de Phase.py`, `Station Monfette Pro - Matrice de Collision R30.py`, `Station Monfette Pro - Exploration de Phase Universelle.py`.
+- **Utilisation :** Démontrer l'alignement vectoriel parfait (Boussole de Phase) et les couplages d'autoroutes (Matrice).
+- **Résultat attendu :** L'alignement systématique des vecteurs **Cyan** (Cible) et **Orange** (Flux) prouvant l'invariance rotationnelle.
+- **Export :** Matrices de collision JPG et rapports d'alignement de phase.
+
+## 5. Plateformes de Données et Statistiques
+
+- **Programmes :** `Station Monfette Pro - Analyseur de Répartition R30.py`, `Station Monfette Pro - Export Excel & Analyse.py`.
+- **Utilisation :** Quantification statistique des solutions par filament orbital.
+- **Résultat attendu :** Histogrammes montrant quelles autoroutes (ex: 1, 7 ou 19) portent la charge de la preuve pour un $N$ donné.
+- **Export :** **Fichiers CSV (Excel)** complets pour traitement externe.
+
+## 6. Démonstrateurs Officiels (Synthèse et Publication)
+
+- **Programmes :** `Générateur de Poster Scientifique - Système Monfette.py`, `STATION DE RECHERCHE MONFETTE PRO - DÉMONSTRATEUR OFFICIEL.py`.
+- **Utilisation :** Présenter l'intégralité de la théorie à des tiers ou générer les documents de clôture de recherche.
+- **Résultat attendu :** Une interface tout-en-un avec aide pédagogique intégrée et synthèse de toutes les lois.
+- **Export :** **Poster Scientifique (JPG 300 DPI)** et **Rapport de Recherche complet (Markdown)** incluant lois, schémas et conclusions.
+
+Chacun de ces fichiers est une brique de mon argumentation : les premiers **montrent**, les suivants **diagnostiquent**, et les derniers **prouvent**.
+
+------
+
+## 📂 SOMMAIRE DE LA BIBLIOTHÈQUE "SYSTÈME MONFETTE"
+
+## 🛡️ NIVEAU 1 : LES FONDATIONS (Visualisation)
+
+*Objectif : Observer la structure orbitale brute et les 8 autoroutes R30.*
+
+- **Visualiseur Monfette - Cycle 360 & Loi p-k.py** : Première approche de la spirale 3D.
+- **Visualiseur Monfette 3D - Rotation & Flux.py** : Ajout de la rotation dynamique pour l'inspection des autoroutes.
+- **Goldbach mod 30 Loi p-e de Monfette.py** : Focus spécifique sur la structure modulo 30.
+
+## 🔍 NIVEAU 2 : LE DIAGNOSTIC (Validation)
+
+*Objectif : Prouver que N = p + q fonctionne pour n'importe quelle cible.*
+
+- **Visualiseur Monfette 3D - Calcul Temps Réel.py** : Calcul instantané des tunnels oranges.
+- **Station Monfette Pro - Analyseur Goldbach & Loi p-k.py** : Validation de la loi p-k sur les décompositions.
+- **Visualiseur Monfette 3D - Mode Comparaison Cycle 360.py** : Preuve visuelle de la répétitivité tous les 360°.
+
+## 🌡️ NIVEAU 3 : LE STRESS-TEST (Robustesse)
+
+*Objectif : Analyser les goulots d'étranglement et la survie de la théorie.*
+
+- **Station Monfette Pro - Analyseur de Stabilité Orbitale.py** : Introduction de la **Ligne Jaune de Stabilité**.
+- **Station Monfette Pro - Focus Tunnel & Stabilité.py** : Zoom automatique et étiquetage (p, q) sur les points critiques.
+- **Station Monfette Pro - Analyse Astronomique.py** : Test de résistance sur des nombres géants (P4, P5, P6).
+
+## 💠 NIVEAU 4 : LA GÉOMÉTRIE DE LA PREUVE (Analyse Vectorielle)
+
+*Objectif : Démontrer l'invariance par les mathématiques orbitales.*
+
+- **Station Monfette Pro - Matrice de Collision R30.py** : Visualisation des couplages d'autoroutes (Heatmap).
+- **Station Monfette Pro - Analyseur de Flux de Phase.py** : La **Boussole de Phase** (Vecteur Cyan vs Orange).
+- **Station Monfette Pro - Exploration de Phase Universelle.py** : Test d'alignement sur tout le cadran (0° à 360°).
+
+## 📊 NIVEAU 5 : EXPORTATION & SYNTHÈSE (Publication)
+
+*Objectif : Générer les preuves matérielles et les rapports officiels.*
+
+- **Station Monfette Pro - Export Excel & Analyse.py** : Génère le fichier `.csv` pour traitement statistique.
+- **Générateur de Poster Scientifique - Système Monfette.py** : Création du poster JPG haute définition.
+- **STATION DE RECHERCHE MONFETTE PRO - DÉMONSTRATEUR OFFICIEL.py** : **L'outil ultime.** Interface tout-en-un avec aide pédagogique, interprétation et rapport Markdown final.
+
+------
+
+## 📋 GUIDE DES EXPORTATIONS
+
+1. **JPG (Images)** : Utiliser pour les posters et l'illustration des tunnels.
+2. **CSV (Excel)** : Utiliser pour prouver la densité brute des solutions.
+3. **MD (Markdown)** : Utiliser pour la diffusion officielle de la théorie et des calculs.
+
