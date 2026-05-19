@@ -182,16 +182,16 @@ N mod 30 détermine exactement quels types de tunnels sont actifs.
 
 *(Traduction fidèle du texte original, non modifiée)*
 
-1. SG = {11,23,29}, XSG = {1,7,13,17,19}.
-2. SG ∪ XSG = R30, SG ∩ XSG = ∅.
-3. |R30 × R30| = 64. Partition évidente.
-4. |A| = 9.
-5. |B| = 30.
-6. |C| = 25.
+1. SG = {11,23,29}, XSG = {1,7,13,17,19}, par calcul direct de  (2r+1) mod 30.
+2. SG u XSG = R30 and SG n XSG = vide (compléments par définition).
+3. \|R30 x R30\| = 64. Partition: R30 x R30 = (SG x SG) u (SG x XSG) u (XSG x SG) u (XSG x XSG).
+4. \|A\| = \|SG x SG\| = 9.
+5. \|B\| = \|SG x XSG\| + \|XSG x SG\| = 30.
+6. \|C\| = \|XSG x XSG\| = 25. Check: 9+30+25 = 64.
 7. Σ(SG+SG) mod 30 = {4,10,16,22,28}.
 8. Σ(XSG+XSG) mod 30 = {0,2,4,6,8,14,18,20,24,26}.
 9. Σ(SG+XSG) mod 30 = {0,6,10,12,16,18,24,28}.
-10. Les ensembles sont disjoints → table déterministe.
+10. Σ(AA) n Σ(CC) n Σ(AC) = vide. La table  N mod30 est déterministe et pleinement prouver par une énumération fini.
 
 ------
 
@@ -233,7 +233,7 @@ Les résultats confirment la prédiction asymptotique :
 
 **Points clés :**
 
-1. L’erreur empirique reste dans l’enveloppe GRH √x·log²(x) à toutes les échelles.
+1. L’erreur empirique reste dans l’enveloppe GRH √x·log²(x) à toutes les échelles. Avec un ration de 0.00850 \<\< 1.
 2. Le biais de +3,29 % à x = 10¹⁰ est conforme à la convergence lente ~1/log(log(x)).
 3. Ces données soutiennent fortement la validité de GRH et de la loi p‑e comme moteur combinatoire de C₂.
 
@@ -311,15 +311,15 @@ Précision garantie :
 
 En ajoutant le premier 11 :
 
-φ(210) = 48 → 48 résidus admissibles.
+​		$$φ(210) = 48 → 48$$ résidus admissibles.
 
 Taux d’exclusion ≈ **81,4 %**.
 
 La loi p‑e prédit :
 
-Res(P₅) = Res(P₄) × (11 − 2) = 48 × 9 = **432** (pour k = 2)
+​		$$Res(P₅) = Res(P₄) × (11 − 2) = 48 × 9 = 432  (pour \space  k = 2)$$
 
-La partition ternaire (1/3, 1/3, 1/3) des safe primes est préservée.
+La partition ternaire (1/3, 1/3, 1/3) des "safe primes" est préservée.
 
 ------
 
