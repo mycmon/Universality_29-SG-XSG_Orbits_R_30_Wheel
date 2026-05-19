@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système Monfette - Asymétries SG / XSG</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Police Mono style IBM Plex -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'IBM Plex Mono', 'Courier New', monospace;
+            background-color: #020617;
+        }
+    </style>
+</head>
+<body class="text-[#e2e8f0] min-h-screen p-6 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <p class="text-[#475569] text-[11px] tracking-[3px] mb-2 font-bold">
+                SYSTÈME MONFETTE · CONJECTURE DE GOLDBACH · MOD 30
+            </p>
+            <h1 class="text-2xl md:text-3xl font-bold text-[#f1f5f9] leading-tight">
+                Asymétries SG / XSG
+            </h1>
+            <p class="text-[#64748b] text-sm mt-2">
+                SG = {11, 23, 29} · XSG = {1, 7, 13, 17, 19} · Tunnels AA · CC · AC
+            </p>
+        </div>
+
+        <!-- Légende des types -->
+        <div class="flex flex-wrap gap-4 mb-7">
+            <div class="flex items-center gap-2 bg-[#0f172a] rounded-md px-3 py-1.5 border border-[#f59e0b]/20">
+                <div class="w-2.5 h-2.5 rounded-sm bg-[#f59e0b]"></div>
+                <span class="text-xs text-[#94a3b8]"><b class="text-[#f59e0b]">AA</b> = SG × SG</span>
+            </div>
+            <div class="flex items-center gap-2 bg-[#0f172a] rounded-md px-3 py-1.5 border border-[#38bdf8]/20">
+                <div class="w-2.5 h-2.5 rounded-sm bg-[#38bdf8]"></div>
+                <span class="text-xs text-[#94a3b8]"><b class="text-[#38bdf8]">CC</b> = XSG × XSG</span>
+            </div>
+            <div class="flex items-center gap-2 bg-[#0f172a] rounded-md px-3 py-1.5 border border-[#a78bfa]/20">
+                <div class="w-2.5 h-2.5 rounded-sm bg-[#a78bfa]"></div>
+                <span class="text-xs text-[#94a3b8]"><b class="text-[#a78bfa]">AC</b> = SG × XSG</span>
+            </div>
+        </div>
+
+        <!-- Onglets / Tabs -->
+        <div class="flex gap-1 mb-7 border-b border-[#1e293b]">
+            <button id="btn-overview" onclick="switchTab('overview')" class="border-b-2 border-[#f59e0b] bg-[#1e293b] text-[#f1f5f9] no-underline px-4 py-2 cursor-pointer text-xs tracking-wider transition-all">
+                Vue globale
+            </button>
+            <button id="btn-mod22" onclick="switchTab('mod22')" class="border-b-2 border-transparent text-[#475569] no-underline px-4 py-2 cursor-pointer text-xs tracking-wider transition-all hover:text-[#94a3b8]">
+                N ≡ 22 mod 30 (A pur)
+            </button>
+            <button id="btn-mod8" onclick="switchTab('mod8')" class="border-b-2 border-transparent text-[#475569] no-underline px-4 py-2 cursor-pointer text-xs tracking-wider transition-all hover:text-[#94a3b8]">
+                N ≡ 8 mod 30 (C pur)
+            </button>
+        </div>
+
+        <!-- Loader -->
+        <div id="loader" class="text-center py-20 text-[#475569]">
+            Calcul en cours…
+        </div>
+
+        <!-- Contenus des Onglets -->
+        <div id="content-area" class="hidden">
+            
+            <!-- CONTENU : VUE GLOBALE -->
+            <div id="tab-overview" class="tab-content">
+                <p class="text-[#64748b] text-xs mb-5">
+                    Proportion de chaque type de tunnel pour N ∈ [100, 3000], groupé par N mod 30
+                </p>
+                <div class="w-full relative h-[340px] mb-7">
+                    <canvas id="chart-overview"></canvas>
+                </div>
+                
+                <div class="mt-7 overflow-x-auto">
+                    <table class="w-full border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b border-[#1e293b] text-left text-[#475569] font-semibold tracking-wider">
+                                <th class="p-2.5">N mod 30</th>
+                                <th class="p-2.5">Types actifs</th>
+                                <th class="p-2.5">AA %</th>
+                                <th class="p-2.5">CC %</th>
+                                <th class="p-2.5">AC %</th>
+                                <th class="p-2.5">Note</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-summary-body">
+                            <!-- Rempli dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CONTENU : MOD 22 -->
+            <div id="tab-mod22" class="tab-content hidden">
+                <div class="bg-[#0f172a] rounded-lg p-4 mb-6 border-l-3 border-[#f59e0b]">
+                    <p class="m-0 text-xs text-[#94a3b8] leading-relaxed">
+                        <b class="text-[#f59e0b]">Cas A pur</b> — Pour N ≡ 22 mod 30, seuls deux tunnels SG×SG sont actifs :<br />
+                        <span class="text-[#fbbf24]">(11,11)</span> car 11+11 = 22 mod 30 &nbsp;|&nbsp;
+                        <span class="text-[#f97316]">(23,29)+(29,23)</span> car 23+29 = 52 ≡ 22 mod 30<br />
+                        Le tunnel (29,29) donne 58 ≡ 28 mod 30 → <b class="text-[#ef4444]">inactif</b>. Le tunnel (11,23) donne 34 ≡ 4 → <b class="text-[#ef4444]">inactif</b>.
+                    </p>
+                </div>
+                <p class="text-[#64748b] text-xs mb-4">Nombre de paires par tunnel actif</p>
+                <div class="w-full relative h-[280px] mb-7">
+                    <canvas id="chart-mod22-line"></canvas>
+                </div>
+
+                <p class="text-[#64748b] text-xs mt-7 mb-4">
+                    Asymétrie : (23,29)+(29,23) domine systématiquement (11,11)
+                </p>
+                <div class="w-full relative h-[200px] mb-6">
+                    <canvas id="chart-mod22-bar"></canvas>
+                </div>
+
+                <div class="bg-[#0f172a] rounded-lg p-4 mt-6 text-xs text-[#64748b]">
+                    <b class="text-[#e2e8f0]">Observation :</b> Le tunnel (23,29) est systématiquement plus peuplé que (11,11).
+                    Ratio moyen (23,29)/(11,11) ≈ <span id="mod22-ratio">...</span>.<br>
+                    Question ouverte : cette asymétrie converge-t-elle ou diverge-t-elle ?
+                </div>
+            </div>
+
+            <!-- CONTENU : MOD 8 -->
+            <div id="tab-mod8" class="tab-content hidden">
+                <div class="bg-[#0f172a] rounded-lg p-4 mb-6 border-l-3 border-[#38bdf8]">
+                    <p class="m-0 text-xs text-[#94a3b8] leading-relaxed">
+                        <b class="text-[#38bdf8]">Cas C pur</b> — Pour N ≡ 8 mod 30, seuls trois tunnels XSG×XSG sont actifs :<br />
+                        <span class="text-[#34d399]">(1,7)</span> car 1+7 = 8 &nbsp;|&nbsp;
+                        <span class="text-[#60a5fa]">(7,1)</span> symétrique &nbsp;|&nbsp;
+                        <span class="text-[#f472b6]">(19,19)</span> car 19+19 = 38 ≡ 8 mod 30
+                    </p>
+                </div>
+                <p class="text-[#64748b] text-xs mb-4">Nombre de paires par tunnel actif</p>
+                <div class="w-full relative h-[280px] mb-6">
+                    <canvas id="chart-mod8-line"></canvas>
+                </div>
+
+                <div class="bg-[#0f172a] rounded-lg p-4 mt-6 text-xs text-[#64748b]">
+                    <b class="text-[#e2e8f0]">Observation :</b> Les tunnels (1,7) et (7,1) sont quasi-symétriques (attendu).
+                    Le tunnel (19,19) — symétrique par nature — suit une trajectoire comparable.<br>
+                    Asymétrie (1,7) vs (7,1) reflète la dissymétrie p &lt; N/2 vs p &gt; N/2 dans le comptage.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-10 pt-5 border-t border-[#1e293b] text-[11px] text-[#334155]">
+            Loi p-e Monfette · Analyse des asymétries SG/XSG mod 30 · N ∈ [38, 3000]
+        </div>
+    </div>
+
+    <!-- Moteur logique et Graphiques -->
+    <script>
+        // --- Algorithme identique ---
+        const LIMIT = 3000;
+        function sieve(limit) {
+            const isPrime = new Uint8Array(limit + 1).fill(1);
+            isPrime[0] = isPrime[1] = 0;
+            for (let i = 2; i * i <= limit; i++) {
+                if (isPrime[i]) for (let j = i * i; j <= limit; j += i) isPrime[j] = 0;
+            }
+            return isPrime;
+        }
+        const IS_PRIME = sieve(LIMIT);
+
+        const SG = new Set([11, 23, 29]);
+        function classifyTunnel(rp, rq) {
+            const psg = SG.has(rp), qsg = SG.has(rq);
+            if (psg && qsg) return "AA";
+            if (!psg && !qsg) return "CC";
+            return "AC";
+        }
+
+        function goldbachPairs(N) {
+            const pairs = [];
+            const half = N / 2;
+            for (let p = 2; p <= half; p++) {
+                const q = N - p;
+                if (IS_PRIME[p] && IS_PRIME[q]) {
+                    const rp = p % 30, rq = q % 30;
+                    pairs.push({ p, q, rp, rq, cls: classifyTunnel(rp, rq) });
+                }
+            }
+            return pairs;
+        }
+
+        let computedData = null;
+
+        function buildData() {
+            // N ≡ 22 mod 30
+            const mod22 = [];
+            for (let N = 52; N <= LIMIT; N += 30) {
+                const pairs = goldbachPairs(N);
+                const t1111 = pairs.filter(p => p.rp === 11 && p.rq === 11).length;
+                const t2329 = pairs.filter(p => (p.rp === 23 && p.rq === 29) || (p.rp === 29 && p.rq === 23)).length;
+                const total = pairs.length;
+                if (total > 0) mod22.push({ N, total, t1111, t2329 });
+            }
+
+            // N ≡ 8 mod 30
+            const mod8 = [];
+            for (let N = 38; N <= LIMIT; N += 30) {
+                const pairs = goldbachPairs(N);
+                const t17 = pairs.filter(p => p.rp === 1 && p.rq === 7).length;
+                const t71 = pairs.filter(p => p.rp === 7 && p.rq === 1).length;
+                const t1919 = pairs.filter(p => p.rp === 19 && p.rq === 19).length;
+                const total = pairs.length;
+                if (total > 0) mod8.push({ N, total, t17, t71, t1919 });
+            }
+
+            // Global mod 30
+            const byClass = {};
+            for (let N = 100; N <= LIMIT; N += 2) {
+                const nm = N % 30;
+                if (!byClass[nm]) byClass[nm] = { AA: 0, CC: 0, AC: 0, total: 0 };
+                const pairs = goldbachPairs(N);
+                for (const p of pairs) {
+                    byClass[nm][p.cls]++;
+                    byClass[nm].total++;
+                }
+            }
+            
+            const classSummary = Object.entries(byClass).map(([nm, d]) => ({
+                nm: parseInt(nm),
+                AA: parseFloat((100 * d.AA / d.total).toFixed(1)),
+                CC: parseFloat((100 * d.CC / d.total).toFixed(1)),
+                AC: parseFloat((100 * d.AC / d.total).toFixed(1)),
+                total: d.total
+            })).sort((a, b) => a.nm - b.nm);
+
+            return { mod22, mod8, classSummary };
+        }
+
+        // --- Styles partagés pour les graphiques ---
+        const chartOptionsBase = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#94a3b8', font: { family: "'IBM Plex Mono'" } } },
+                tooltip: { backgroundColor: '#0f172a', titleFont: { family: "'IBM Plex Mono'" }, bodyFont: { family: "'IBM Plex Mono'" }, borderColor: '#334155', borderWidth: 1 }
+            },
+            scales: {
+                x: { ticks: { color: '#475569', font: { size: 10, family: "'IBM Plex Mono'" } }, grid: { color: '#1e293b' } },
+                y: { ticks: { color: '#475569', font: { size: 11, family: "'IBM Plex Mono'" } }, grid: { color: '#1e293b' } }
+            }
+        };
+
+        // --- Rendu de l'interface ---
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                computedData = buildData();
+                
+                // Masquer loader et afficher zone de contenu
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('content-area').classList.remove('hidden');
+
+                renderOverviewChart();
+                renderTable();
+                renderMod22Charts();
+                renderMod8Chart();
+            }, 50);
+        });
+
+        // Changement d'onglets
+        function switchTab(targetTab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${targetTab}`).classList.remove('hidden');
+
+            const buttons = {
+                overview: document.getElementById('btn-overview'),
+                mod22: document.getElementById('btn-mod22'),
+                mod8: document.getElementById('btn-mod8')
+            };
+
+            Object.entries(buttons).forEach(([key, btn]) => {
+                if (key === targetTab) {
+                    btn.className = "border-b-2 border-[#f59e0b] bg-[#1e293b] text-[#f1f5f9] no-underline px-4 py-2 cursor-pointer text-xs tracking-wider transition-all";
+                } else {
+                    btn.className = "border-b-2 border-transparent text-[#475569] no-underline px-4 py-2 cursor-pointer text-xs tracking-wider transition-all hover:text-[#94a3b8]";
+                }
+            });
+        }
+
+        // 1. Graphique Vue Globale (Barres empilées)
+        function renderOverviewChart() {
+            const ctx = document.getElementById('chart-overview').getContext('2d');
+            const data = computedData.classSummary;
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.nm),
+                    datasets: [
+                        { label: 'AA (SG×SG)', data: data.map(d => d.AA), backgroundColor: '#f59e0b' },
+                        { label: 'AC (mixte)', data: data.map(d => d.AC), backgroundColor: '#a78bfa' },
+                        { label: 'CC (XSG×XSG)', data: data.map(d => d.CC), backgroundColor: '#38bdf8' }
+                    ]
+                },
+                options: {
+                    ...chartOptionsBase,
+                    scales: {
+                        x: { stacked: true, ticks: { color: '#475569' }, grid: { display: false } },
+                        y: { stacked: true, max: 100, ticks: { callback: value => value + '%', color: '#475569' }, grid: { color: '#1e293b' } }
+                    }
+                }
+            });
+        }
+
+        // 2. Génération du Tableau Récapitulatif
+        function renderTable() {
+            const tbody = document.getElementById('table-summary-body');
+            computedData.classSummary.forEach(row => {
+                const types = [];
+                if (row.AA > 0.5) types.push("AA");
+                if (row.CC > 0.5) types.push("CC");
+                if (row.AC > 0.5) types.push("AC");
+                const isPure = types.length === 1;
+
+                let note = "";
+                if (row.nm === 22) note = "A pur — SG+SG seulement";
+                else if (row.nm === 12) note = "B pur — mixte seulement";
+                else if ([8, 14, 20, 26].includes(row.nm)) note = "C pur — XSG+XSG seulement";
+
+                const tr = document.createElement('tr');
+                tr.className = `border-b border-[#0f172a] ${isPure ? 'bg-[#0f172a]' : ''}`;
+                
+                tr.innerHTML = `
+                    <td class="p-2 text-left ${isPure ? 'text-[#f59e0b] font-bold' : 'text-[#e2e8f0]'}">
+                        ${row.nm} ${isPure ? '★' : ''}
+                    </td>
+                    <td class="p-2 text-[#94a3b8]">${types.join(' + ')}</td>
+                    <td class="p-2" style="color: ${row.AA > 0.5 ? '#f59e0b' : '#334155'}">${row.AA}%</td>
+                    <td class="p-2" style="color: ${row.CC > 0.5 ? '#38bdf8' : '#334155'}">${row.CC}%</td>
+                    <td class="p-2" style="color: ${row.AC > 0.5 ? '#a78bfa' : '#334155'}">${row.AC}%</td>
+                    <td class="p-2 text-[#475569] text-[11px]">${note}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 3. Graphiques Mod 22
+        function renderMod22Charts() {
+            const data22 = computedData.mod22;
+
+            // Calcul du ratio moyen
+            let sumRatio = 0, count = 0;
+            data22.forEach(r => {
+                if(r.t1111 > 0) { sumRatio += (r.t2329 / r.t1111); count++; }
+            });
+            document.getElementById('mod22-ratio').innerText = (sumRatio / count).toFixed(2);
+
+            // Chart Courbes
+            const ctxLine = document.getElementById('chart-mod22-line').getContext('2d');
+            new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: data22.map(d => d.N),
+                    datasets: [
+                        { label: '(11,11)', data: data22.map(d => d.t1111), borderColor: '#fbbf24', borderWidth: 2, pointRadius: 0, tension: 0.1 },
+                        { label: '(23,29)+(29,23)', data: data22.map(d => d.t2329), borderColor: '#f97316', borderWidth: 2, pointRadius: 0, tension: 0.1 },
+                        { label: 'Total paires', data: data22.map(d => d.total), borderColor: '#94a3b8', borderWidth: 1, borderDash: [4, 4], pointRadius: 0, tension: 0.1 }
+                    ]
+                },
+                options: chartOptionsBase
+            });
+
+            // Chart Barres (40 premiers éléments)
+            const ctxBar = document.getElementById('chart-mod22-bar').getContext('2d');
+            const sliceData = data22.slice(0, 40);
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: sliceData.map(d => d.N),
+                    datasets: [
+                        { label: '(11,11)', data: sliceData.map(d => d.t1111), backgroundColor: '#fbbf24' },
+                        { label: '(23,29)+(29,23)', data: sliceData.map(d => d.t2329), backgroundColor: '#f97316' }
+                    ]
+                },
+                options: chartOptionsBase
+            });
+        }
+
+        // 4. Graphique Mod 8
+        function renderMod8Chart() {
+            const data8 = computedData.mod8;
+            const ctx = document.getElementById('chart-mod8-line').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data8.map(d => d.N),
+                    datasets: [
+                        { label: '(1,7)', data: data8.map(d => d.t17), borderColor: '#34d399', borderWidth: 2, pointRadius: 0, tension: 0.1 },
+                        { label: '(7,1)', data: data8.map(d => d.t71), borderColor: '#60a5fa', borderWidth: 2, pointRadius: 0, tension: 0.1 },
+                        { label: '(19,19)', data: data8.map(d => d.t1919), borderColor: '#f472b6', borderWidth: 2, pointRadius: 0, tension: 0.1 },
+                        { label: 'Total', data: data8.map(d => d.total), borderColor: '#94a3b8', borderWidth: 1, borderDash: [4, 4], pointRadius: 0, tension: 0.1 }
+                    ]
+                },
+                options: chartOptionsBase
+            });
+        }
+    </script>
+</body>
+</html>

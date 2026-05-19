@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goldbach — Cercle Radian & Tunnels</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@400;700;900&display=swap');
+
+  :root {
+    --bg: #0a0c14;
+    --surface: #111520;
+    --border: #1e2840;
+    --sg: #f59e0b;
+    --xsg: #38bdf8;
+    --tunnel-aa: #f59e0b;
+    --tunnel-cc: #38bdf8;
+    --tunnel-ac: #a78bfa;
+    --text: #e2e8f0;
+    --muted: #475569;
+    --accent: #f0f9ff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+    overflow-x: hidden;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 5vw, 38px);
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 3px;
+    margin-top: 8px;
+    text-transform: uppercase;
+  }
+
+  .layout {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media(max-width:640px){ .layout { grid-template-columns:1fr; } }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .panel h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--accent);
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+
+  /* ── CIRCLE ── */
+  .circle-wrap { display:flex; justify-content:center; align-items:center; }
+  svg text { font-family: 'Space Mono', monospace; }
+
+  /* ── CONTROLS ── */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 10px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .btn.active { border-color: var(--sg); color: var(--sg); background: #1a1200; }
+  .btn:hover:not(.active) { border-color: #334155; color: var(--text); }
+
+  /* ── INFO BOX ── */
+  .info {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 11px;
+    line-height: 1.8;
+    color: #94a3b8;
+    margin-top: 12px;
+    min-height: 80px;
+  }
+  .info b { color: var(--accent); }
+  .info .sg  { color: var(--sg); }
+  .info .xsg { color: var(--xsg); }
+  .info .ac  { color: var(--tunnel-ac); }
+
+  /* ── TABLE ── */
+  table { width:100%; border-collapse: collapse; font-size: 11px; }
+  th { color: var(--muted); font-weight: 700; text-align:left; padding: 4px 8px; border-bottom: 1px solid var(--border); letter-spacing:1px; }
+  td { padding: 4px 8px; border-bottom: 1px solid #0f172a; color: #94a3b8; }
+  tr.sg-row td { color: var(--sg); }
+  tr.pure td:first-child { color: var(--sg); font-weight:700; }
+
+  /* ── INVARIANT ── */
+  .invariant {
+    background: linear-gradient(135deg, #0f1a0a, #0a1628);
+    border: 1px solid #27AE60;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-top: 16px;
+    font-size: 12px;
+    line-height: 1.9;
+  }
+  .invariant .title { color: #27AE60; font-weight:700; font-size: 13px; margin-bottom: 8px; }
+  .invariant .formula {
+    text-align: center;
+    font-size: 15px;
+    color: var(--accent);
+    margin: 10px 0;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Goldbach — Cercle Radian &amp; Tunnels</h1>
+  <p>Structure géométrique de (ℤ/30ℤ)★ · Loi p-e Monfette · 2026</p>
+</header>
+
+<div class="layout">
+
+  <!-- ── PANNEAU 1: CERCLE INTERACTIF ── -->
+  <div class="panel" style="grid-column:1/-1">
+    <h2>Cercle Radian — Les 8 résidus de ℝ₃₀ et leurs tunnels</h2>
+    <div class="controls" id="ctrl"></div>
+    <div class="circle-wrap">
+      <svg id="mainSvg" viewBox="-170 -170 340 340" width="100%" style="max-width:520px;max-height:520px"></svg>
+    </div>
+    <div class="info" id="infoBox">
+      <b>Cliquez sur une classe N mod 30</b> pour voir les tunnels actifs sur le cercle.<br>
+      Chaque résidu r ∈ ℝ₃₀ est placé à l'angle <b>θ = r × 2π/30</b>.<br>
+      La contrainte tunnel: <b>θ_p + θ_q ≡ θ_N (mod 2π)</b> — invariant angulaire.
+    </div>
+  </div>
+
+  <!-- ── PANNEAU 2: TABLE RÉSIDUS ── -->
+  <div class="panel">
+    <h2>Les 8 résidus sur le cercle</h2>
+    <table>
+      <thead><tr><th>r</th><th>θ (°)</th><th>θ (rad)</th><th>Classe</th></tr></thead>
+      <tbody id="residuTable"></tbody>
+    </table>
+
+    <div class="invariant">
+      <div class="title">✦ Invariant angulaire (nouveau résultat)</div>
+      Pour tout tunnel (a,b) actif pour N :
+      <div class="formula">θ_a + θ_b ≡ θ_N  (mod 2π)</div>
+      où θ_r = r × 2π/30.<br>
+      <span style="color:#27AE60">Tous les tunnels actifs convergent vers le même angle N×12°.</span>
+      <br><br>
+      <span style="color:#94a3b8">→ La contrainte de Goldbach est une contrainte de phase sur le cercle.</span>
+    </div>
+  </div>
+
+  <!-- ── PANNEAU 3: TABLE TUNNELS ── -->
+  <div class="panel">
+    <h2>Table déterministe N mod 30 → Tunnels</h2>
+    <table>
+      <thead><tr><th>N mod 30</th><th>Angle θ_N</th><th>Types</th><th># Tunnels</th></tr></thead>
+      <tbody id="tunnelTable"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const R30 = [1,7,11,13,17,19,23,29];
+const SG  = new Set([11,23,29]);
+const XSG = new Set([1,7,13,17,19]);
+
+function cls(r){ return SG.has(r)?'SG':'XSG'; }
+function clsTunnel(a,b){
+  if(SG.has(a)&&SG.has(b)) return 'AA';
+  if(!SG.has(a)&&!SG.has(b)) return 'CC';
+  return 'AC';
+}
+function angleD(r){ return r*360/30; }
+function angleR(r){ return r*2*Math.PI/30; }
+function polar(r, radius=120){
+  const a = angleR(r) - Math.PI/2; // 0° at top
+  return [radius*Math.cos(a), radius*Math.sin(a)];
+}
+
+const CLASSES = [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28];
+const PURE = new Set([2,8,14,20,26,12,22]);
+const TYPE_COLORS = { AA:'#f59e0b', CC:'#38bdf8', AC:'#a78bfa' };
+
+// Active tunnels per N mod 30
+function getTunnels(nmod){
+  return R30.flatMap(a => R30
+    .filter(b => (a+b)%30 === nmod%30)
+    .map(b => ({a,b,type:clsTunnel(a,b)}))
+  );
+}
+
+// ── Build residue table ──
+const rtBody = document.getElementById('residuTable');
+R30.forEach(r => {
+  const tr = document.createElement('tr');
+  if(SG.has(r)) tr.className='sg-row';
+  tr.innerHTML = `<td><b>${r}</b></td><td>${angleD(r).toFixed(0)}°</td><td>${(angleR(r)).toFixed(4)}</td><td style="color:${SG.has(r)?'#f59e0b':'#38bdf8'}">${cls(r)}</td>`;
+  rtBody.appendChild(tr);
+});
+
+// ── Build tunnel table ──
+const ttBody = document.getElementById('tunnelTable');
+CLASSES.forEach(nm => {
+  const t = getTunnels(nm);
+  const types = [...new Set(t.map(x=>x.type))];
+  const typStr = types.map(tp => `<span style="color:${TYPE_COLORS[tp]}">${tp}</span>`).join(' + ');
+  const isPure = PURE.has(nm);
+  const tr = document.createElement('tr');
+  if(isPure) tr.className='pure';
+  tr.innerHTML = `<td>${isPure?'★':''} ${nm}</td><td>${(nm*12)%360}°</td><td>${typStr}</td><td style="text-align:center">${t.length}</td>`;
+  ttBody.appendChild(tr);
+});
+
+// ── Build controls ──
+const ctrl = document.getElementById('ctrl');
+CLASSES.forEach(nm => {
+  const b = document.createElement('button');
+  b.className='btn';
+  b.textContent = `N≡${nm}`;
+  b.dataset.nm = nm;
+  b.onclick = () => { document.querySelectorAll('.btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); drawCircle(nm); };
+  ctrl.appendChild(b);
+});
+
+// ── SVG helpers ──
+const svg = document.getElementById('mainSvg');
+function svgEl(tag, attrs={}){
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v));
+  return el;
+}
+
+function drawCircle(nmod=null){
+  svg.innerHTML='';
+
+  // Fond
+  svg.appendChild(svgEl('circle',{cx:0,cy:0,r:155,fill:'#080e1c',stroke:'#0f172a','stroke-width':1}));
+
+  // Cercle principal
+  svg.appendChild(svgEl('circle',{cx:0,cy:0,r:120,fill:'none',stroke:'#1e2840','stroke-width':1.5}));
+
+  // Axes
+  [0,90,180,270].forEach(a=>{
+    const ar = (a-90)*Math.PI/180;
+    svg.appendChild(svgEl('line',{x1:0,y1:0,x2:130*Math.cos(ar),y2:130*Math.sin(ar),stroke:'#0f172a','stroke-width':1}));
+  });
+
+  // Marques de 12° (chaque unité mod30)
+  for(let i=0;i<30;i++){
+    const a=(i*12-90)*Math.PI/180;
+    const r1=116, r2=R30.includes(i)?108:118;
+    svg.appendChild(svgEl('line',{x1:r1*Math.cos(a),y1:r1*Math.sin(a),x2:r2*Math.cos(a),y2:r2*Math.sin(a),stroke:R30.includes(i)?'#1e3a5f':'#0f172a','stroke-width':R30.includes(i)?1.5:0.5}));
+  }
+
+  // Tunnels actifs
+  if(nmod !== null){
+    const tunnels = getTunnels(nmod);
+    tunnels.forEach(({a,b,type})=>{
+      const [x1,y1] = polar(a,120);
+      const [x2,y2] = polar(b,120);
+      const color = TYPE_COLORS[type];
+      // Arc ou ligne
+      const line = svgEl('line',{x1,y1,x2,y2,stroke:color,'stroke-width':a===b?0:1.8,'stroke-opacity':0.5,'stroke-dasharray': a===b?'0':'4 2'});
+      svg.appendChild(line);
+    });
+
+    // Angle cible N
+    const aN = ((nmod*12-90)*Math.PI/180);
+    const arrow = svgEl('line',{x1:0,y1:0,x2:100*Math.cos(aN),y2:100*Math.sin(aN),stroke:'#f59e0b','stroke-width':2.5,'stroke-opacity':0.8});
+    svg.appendChild(arrow);
+    svg.appendChild(svgEl('circle',{cx:120*Math.cos(aN),cy:120*Math.sin(aN),r:6,fill:'#f59e0b','fill-opacity':0.3,stroke:'#f59e0b','stroke-width':1.5}));
+  }
+
+  // Points des résidus
+  R30.forEach(r => {
+    const [x,y] = polar(r,120);
+    const color = SG.has(r)?'#f59e0b':'#38bdf8';
+    const isActive = nmod!==null && getTunnels(nmod).some(t=>t.a===r||t.b===r);
+    const R = isActive ? 9 : 6;
+    svg.appendChild(svgEl('circle',{cx:x,cy:y,r:R+3,fill:color,'fill-opacity':isActive?0.15:0.05}));
+    svg.appendChild(svgEl('circle',{cx:x,cy:y,r:R,fill:color,'fill-opacity':isActive?1:0.4,stroke:'#0a0c14','stroke-width':1.5}));
+
+    // Étiquette
+    const [lx,ly] = polar(r, 140);
+    const label = svgEl('text',{x:lx,y:ly+4,'text-anchor':'middle','font-size':'10','fill':isActive?color:'#334155','font-weight':isActive?'bold':'normal'});
+    label.textContent = r;
+    svg.appendChild(label);
+
+    // Angle en degrés (petit)
+    if(isActive){
+      const [ax,ay] = polar(r, 152);
+      const alabel = svgEl('text',{x:ax,y:ay+3,'text-anchor':'middle','font-size':'8','fill':'#475569'});
+      alabel.textContent = `${angleD(r).toFixed(0)}°`;
+      svg.appendChild(alabel);
+    }
+  });
+
+  // Centre
+  svg.appendChild(svgEl('circle',{cx:0,cy:0,r:3,fill:'#334155'}));
+
+  // Légende SG/XSG
+  [['-150','135','#f59e0b','SG  = {11,23,29}'],['-150','148','#38bdf8','XSG = {1,7,13,17,19}']].forEach(([x,y,c,t])=>{
+    svg.appendChild(svgEl('circle',{cx:parseFloat(x)+6,cy:parseFloat(y)-4,r:4,fill:c}));
+    const lab=svgEl('text',{x:parseFloat(x)+14,y,fill:c,'font-size':'9','font-family':'Space Mono'});
+    lab.textContent=t; svg.appendChild(lab);
+  });
+
+  // Info
+  updateInfo(nmod);
+}
+
+function updateInfo(nmod){
+  const box = document.getElementById('infoBox');
+  if(nmod===null){
+    box.innerHTML = '<b>Cliquez sur une classe N mod 30</b> pour voir les tunnels actifs.';
+    return;
+  }
+  const tunnels = getTunnels(nmod);
+  const types = [...new Set(tunnels.map(t=>t.type))];
+  const angleN = (nmod*12)%360;
+  const isPure = PURE.has(nmod);
+
+  const typeDesc = types.map(tp=>{
+    const n=tunnels.filter(t=>t.type===tp).length;
+    const c=tp==='AA'?'sg':tp==='CC'?'xsg':'ac';
+    return `<span class="${c}">${tp}(${n})</span>`;
+  }).join(' + ');
+
+  const tunnelList = tunnels.slice(0,6).map(({a,b,type})=>{
+    const c=type==='AA'?'sg':type==='CC'?'xsg':'ac';
+    return `<span class="${c}">(${a},${b})</span>`;
+  }).join('  ');
+
+  box.innerHTML = `
+    <b>N ≡ ${nmod} mod 30</b> ${isPure?'<span class="sg">★ PURE</span>':''}<br>
+    Angle cible : <b>θ_N = ${angleN}°</b>  (${(nmod*2*Math.PI/30).toFixed(4)} rad)<br>
+    Types actifs : ${typeDesc}  ·  ${tunnels.length} tunnels<br>
+    Tunnels : ${tunnelList}${tunnels.length>6?`  <span style="color:#475569">+${tunnels.length-6} autres</span>`:''}<br>
+    <span style="color:#27ae60">Invariant : pour chaque tunnel (a,b) ci-dessus, a×12° + b×12° ≡ ${angleN}° (mod 360°)</span>
+  `;
+}
+
+// Init
+drawCircle(22);
+document.querySelectorAll('.btn').forEach(b=>{ if(b.dataset.nm==='22') b.classList.add('active'); });
+</script>
+
+</body>
+</html>
